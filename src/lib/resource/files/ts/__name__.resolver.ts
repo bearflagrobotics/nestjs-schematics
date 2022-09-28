@@ -1,60 +1,35 @@
-import { Resolver<% if (crud && type === 'graphql-schema-first') { %>, Query, Mutation, Args<% } else if (crud && type === 'graphql-code-first') { %>, Query, Mutation, Args, Int<% } %> } from '@nestjs/graphql';
-import { <%= classify(name) %>Service } from './<%= name %>.service';<% if (crud && type === 'graphql-code-first') { %>
-import { <%= singular(classify(name)) %> } from './entities/<%= singular(name) %>.entity';<% } %><% if (crud) { %>
-import { Create<%= singular(classify(name)) %>Input } from './dto/create-<%= singular(name) %>.input';
-import { Update<%= singular(classify(name)) %>Input } from './dto/update-<%= singular(name) %>.input';<% } %>
+import { Args, ID, Mutation, Resolver } from '@nestjs/graphql'
+import { Filter, UpdateManyResponse } from '@nestjs-query/core'
+import { CRUDResolver, FilterType, UpdateManyResponseType } from '@nestjs-query/query-graphql'
+import { <%= singular(classify(name)) %> } from './entities/<%= singular(name) %>.entity'
+import { Create<%= singular(classify(name)) %>Input } from './dto/create-<%= singular(name) %>.input'
+import { Update<%= singular(classify(name)) %>Input } from './dto/update-<%= singular(name) %>.input'
+import { <%= classify(name) %>Service } from './<%= name %>.service'
 
-<% if (type === 'graphql-code-first' && crud) { %>@Resolver(() => <%= singular(classify(name)) %>)<% } else if (type === 'graphql-code-first') {%>@Resolver()<% } else { %>@Resolver('<%= singular(classify(name)) %>')<% } %>
-export class <%= classify(name) %>Resolver {
-  constructor(private readonly <%= lowercased(name) %>Service: <%= classify(name) %>Service) {}<% if (crud && type === 'graphql-code-first') { %>
+@Resolver(() => <%= singular(classify(name)) %>)
+export class <%= classify(name) %>Resolver extends CRUDResolver(<%= singular(classify(name)) %>, {
+  CreateDTOClass: Create<%= singular(classify(name)) %>Input,
+  UpdateDTOClass: Update<%= singular(classify(name)) %>Input,
+}) {
+  constructor(readonly service: <%= classify(name) %>Service) {
+    super(service)
+  }
 
+  /**
+   * Restore an entity by resetting its deletedAt column to null.
+   */
   @Mutation(() => <%= singular(classify(name)) %>)
-  create<%= singular(classify(name)) %>(@Args('create<%= singular(classify(name)) %>Input') create<%= singular(classify(name)) %>Input: Create<%= singular(classify(name)) %>Input) {
-    return this.<%= lowercased(name) %>Service.create(create<%= singular(classify(name)) %>Input);
+  restoreOne<%= singular(classify(name)) %>(@Args('input', { type: () => ID }) id: string): Promise<<%= singular(classify(name)) %>> {
+    return this.service.restoreOne(id)
   }
 
-  @Query(() => [<%= singular(classify(name)) %>], { name: '<%= lowercased(classify(name)) %>' })
-  findAll() {
-    return this.<%= lowercased(name) %>Service.findAll();
+  /**
+   * Restore multiple entities by resetting their deletedAt column to null.
+   */
+  @Mutation(() => UpdateManyResponseType())
+  restoreMany<%= classify(name) %>(
+    @Args('input', { type: () => FilterType(<%= singular(classify(name)) %>) }) filter: Filter<<%= singular(classify(name)) %>>
+  ): Promise<UpdateManyResponse> {
+    return this.service.restoreMany(filter)
   }
-
-  @Query(() => <%= singular(classify(name)) %>, { name: '<%= lowercased(singular(classify(name))) %>' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.<%= lowercased(name) %>Service.findOne(id);
-  }
-
-  @Mutation(() => <%= singular(classify(name)) %>)
-  update<%= singular(classify(name)) %>(@Args('update<%= singular(classify(name)) %>Input') update<%= singular(classify(name)) %>Input: Update<%= singular(classify(name)) %>Input) {
-    return this.<%= lowercased(name) %>Service.update(update<%= singular(classify(name)) %>Input.id, update<%= singular(classify(name)) %>Input);
-  }
-
-  @Mutation(() => <%= singular(classify(name)) %>)
-  remove<%= singular(classify(name)) %>(@Args('id', { type: () => Int }) id: number) {
-    return this.<%= lowercased(name) %>Service.remove(id);
-  }<% } else if (crud && type === 'graphql-schema-first') {%>
-
-  @Mutation('create<%= singular(classify(name)) %>')
-  create(@Args('create<%= singular(classify(name)) %>Input') create<%= singular(classify(name)) %>Input: Create<%= singular(classify(name)) %>Input) {
-    return this.<%= lowercased(name) %>Service.create(create<%= singular(classify(name)) %>Input);
-  }
-
-  @Query('<%= lowercased(classify(name)) %>')
-  findAll() {
-    return this.<%= lowercased(name) %>Service.findAll();
-  }
-
-  @Query('<%= lowercased(singular(classify(name))) %>')
-  findOne(@Args('id') id: number) {
-    return this.<%= lowercased(name) %>Service.findOne(id);
-  }
-
-  @Mutation('update<%= singular(classify(name)) %>')
-  update(@Args('update<%= singular(classify(name)) %>Input') update<%= singular(classify(name)) %>Input: Update<%= singular(classify(name)) %>Input) {
-    return this.<%= lowercased(name) %>Service.update(update<%= singular(classify(name)) %>Input.id, update<%= singular(classify(name)) %>Input);
-  }
-
-  @Mutation('remove<%= singular(classify(name)) %>')
-  remove(@Args('id') id: number) {
-    return this.<%= lowercased(name) %>Service.remove(id);
-  }<% } %>
 }

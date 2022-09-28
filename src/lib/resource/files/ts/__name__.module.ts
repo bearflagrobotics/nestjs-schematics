@@ -1,9 +1,27 @@
 import { Module } from '@nestjs/common';
-import { <%= classify(name) %>Service } from './<%= name %>.service';
-<% if (type === 'rest' || type === 'microservice') { %>import { <%= classify(name) %>Controller } from './<%= name %>.controller';<% } %><% if (type === 'graphql-code-first' || type === 'graphql-schema-first') { %>import { <%= classify(name) %>Resolver } from './<%= name %>.resolver';<% } %><% if (type === 'ws') { %>import { <%= classify(name) %>Gateway } from './<%= name %>.gateway';<% } %>
+import { NestjsQueryGraphQLModule } from '@nestjs-query/query-graphql'
+import { NestjsQueryTypeOrmModule } from '@nestjs-query/query-typeorm'
+import { <%= singular(classify(name)) %> } from './entities/<%= singular(name) %>.entity'
+import { Create<%= singular(classify(name)) %>Input } from './dto/create-<%= singular(name) %>.input'
+import { Update<%= singular(classify(name)) %>Input } from './dto/update-<%= singular(name) %>.input'
+import { <%= classify(name) %>Service } from './<%= name %>.service'
+import { <%= classify(name) %>Resolver } from './<%= name %>.resolver'
 
 @Module({
-  <% if (type === 'rest' || type === 'microservice') { %>controllers: [<%= classify(name) %>Controller],
-  providers: [<%= classify(name) %>Service]<% } else if (type === 'graphql-code-first' || type === 'graphql-schema-first') { %>providers: [<%= classify(name) %>Resolver, <%= classify(name) %>Service]<% } else { %>providers: [<%= classify(name) %>Gateway, <%= classify(name) %>Service]<% } %>
+  imports: [
+    NestjsQueryGraphQLModule.forFeature({
+      imports: [NestjsQueryTypeOrmModule.forFeature([<%= singular(classify(name)) %>])],
+      services: [<%= classify(name) %>Service],
+      dtos: [
+        {
+          DTOClass: <%= singular(classify(name)) %>,
+          CreateDTOClass: Create<%= singular(classify(name)) %>Input,
+          UpdateDTOClass: Update<%= singular(classify(name)) %>Input,
+        },
+      ],
+    }),
+  ],
+  providers: [<%= classify(name) %>Service, <%= classify(name) %>Resolver],
+  exports: [<%= classify(name) %>Service],
 })
 export class <%= classify(name) %>Module {}
