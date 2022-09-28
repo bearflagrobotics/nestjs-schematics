@@ -1,0 +1,35 @@
+import { Args, ID, Mutation, Resolver } from '@nestjs/graphql'
+import { Filter, UpdateManyResponse } from '@nestjs-query/core'
+import { CRUDResolver, FilterType, UpdateManyResponseType } from '@nestjs-query/query-graphql'
+import { <%= singular(classify(name)) %> } from './entities/<%= singular(name) %>.entity'
+import { Create<%= singular(classify(name)) %>Input } from './dto/create-<%= singular(name) %>.input'
+import { Update<%= singular(classify(name)) %>Input } from './dto/update-<%= singular(name) %>.input'
+import { <%= classify(name) %>Service } from './<%= name %>.service'
+
+@Resolver(() => <%= singular(classify(name)) %>)
+export class <%= classify(name) %>Resolver extends CRUDResolver(<%= singular(classify(name)) %>, {
+  CreateDTOClass: Create<%= singular(classify(name)) %>Input,
+  UpdateDTOClass: Update<%= singular(classify(name)) %>Input,
+}) {
+  constructor(readonly service: <%= classify(name) %>Service) {
+    super(service)
+  }
+
+  /**
+   * Restore an entity by resetting its deletedAt column to null.
+   */
+  @Mutation(() => <%= singular(classify(name)) %>)
+  restoreOne<%= singular(classify(name)) %>(@Args('input', { type: () => ID }) id: string): Promise<<%= singular(classify(name)) %>> {
+    return this.service.restoreOne(id)
+  }
+
+  /**
+   * Restore multiple entities by resetting their deletedAt column to null.
+   */
+  @Mutation(() => UpdateManyResponseType())
+  restoreMany<%= classify(name) %>(
+    @Args('input', { type: () => FilterType(<%= singular(classify(name)) %>) }) filter: Filter<<%= singular(classify(name)) %>>
+  ): Promise<UpdateManyResponse> {
+    return this.service.restoreMany(filter)
+  }
+}
