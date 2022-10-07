@@ -14,7 +14,7 @@ import { IDField, FilterableField } from '@nestjs-query/query-graphql'
 export class <%= singular(classify(name)) %> {
   @IDField(() => ID)
   @PrimaryGeneratedColumn('uuid')
-  uuid: string
+  uuid!: string
 
   @FilterableField(() => Int, { description: 'Example field (placeholder)', nullable: true })
   @Column('integer', { nullable: true })
@@ -22,7 +22,7 @@ export class <%= singular(classify(name)) %> {
 
   @FilterableField()
   @Column()
-  exampleField2: string
+  exampleField2!: string
 
   /**
    * NOTE: Please keep all entity-specific fields listed above `createdAt`.
@@ -32,11 +32,11 @@ export class <%= singular(classify(name)) %> {
 
   @FilterableField(() => GraphQLISODateTime)
   @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date
+  createdAt!: Date
 
   @FilterableField(() => GraphQLISODateTime)
   @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt: Date
+  updatedAt!: Date
 
   @FilterableField(() => GraphQLISODateTime, { nullable: true })
   @DeleteDateColumn({ type: 'timestamptz', nullable: true })
