@@ -11,5 +11,5 @@ export class Create<%= singular(classify(name)) %>Input {
 
   @IsString()
   @Field()
-  exampleField2: string;
+  exampleField2!: string;
 }
