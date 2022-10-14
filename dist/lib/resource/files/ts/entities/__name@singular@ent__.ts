@@ -14,7 +14,7 @@ import { IDField, FilterableField } from '@nestjs-query/query-graphql'
 export class <%= singular(classify(name)) %> {
   @IDField(() => ID)
   @PrimaryGeneratedColumn('uuid')
-  uuid!: string
+  id!: string
 
   @FilterableField(() => Int, { description: 'Example field (placeholder)', nullable: true })
   @Column('integer', { nullable: true })
