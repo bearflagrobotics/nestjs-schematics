@@ -13,7 +13,7 @@ export class <%= classify(name) %>Service extends TypeOrmQueryService<<%= singul
   /**
    * Create or update the entity depending on if its primary ID already exists.
    */
-  async saveOne(<%= singular(name) %>: DeepPartial<<%= singular(classify(name)) %>>) {
-    return this.repo.save(<%= singular(name) %>)
+  async saveOne(<%= singular(camelize(name)) %>: DeepPartial<<%= singular(classify(name)) %>>) {
+    return this.repo.save(<%= singular(camelize(name)) %>)
   }
 }
